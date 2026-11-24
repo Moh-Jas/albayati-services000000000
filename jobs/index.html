@@ -460,15 +460,27 @@ document.getElementById('app-form').addEventListener('submit', async function(e)
   data['المنصات'] = platforms.join(', ') || 'لم يتم الاختيار';
   data['الادوات'] = tools.join(', ') || 'لم يتم الاختيار';
 
-  data['access_key'] = '61585651-7bf1-4d1a-afed-b94a187b9a98';
-  data['subject'] = 'طلب توظيف جديد - Toka Market - ' + (data['الاسم_الكامل'] || '');
-  data['from_name'] = 'Toka Market Jobs';
+  // نص مرتب بكل الإجابات
+  const lines = Object.keys(data).map(k => k.replace(/_/g,' ') + ': ' + (String(data[k]).trim() || '-'));
+  const fullText = lines.join('\n');
+  const emailVal = String(data['البريد_الالكتروني'] || '').trim();
+
+  const payload = {
+    access_key: '61585651-7bf1-4d1a-afed-b94a187b9a98',
+    subject: 'New job application - Toka Market',
+    from_name: 'Toka Market Jobs',
+    name: String(data['الاسم_الكامل'] || 'Applicant').trim(),
+    phone: String(data['رقم_الهاتف'] || '').trim(),
+    message: fullText
+  };
+  if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(emailVal)) payload.email = emailVal;
+  window.__lastApplication = fullText;
 
   try {
     const res = await fetch('https://api.web3forms.com/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify(data)
+      body: JSON.stringify(payload)
     });
     const out = await res.json().catch(() => ({}));
 
@@ -487,7 +499,13 @@ document.getElementById('app-form').addEventListener('submit', async function(e)
     if (/activat/i.test(m)) {
       alert('الاستمارة بانتظار التفعيل من صاحب الموقع. يرجى المحاولة لاحقاً.');
     } else {
-      alert('حدث خطأ أثناء الإرسال. تأكد من الاتصال وحاول مجدداً.\n(' + m + ')');
+      // بديل مضمون: إرسال الطلب عبر واتساب
+      const OWNER_WA = ''; // رقم واتساب الإدارة بالصيغة الدولية بدون + (مثال 9647XXXXXXXXX)
+      const ok = confirm('تعذّر الإرسال عبر الموقع (' + m + ').\n\nهل تريد إرسال طلبك عبر واتساب بدلاً من ذلك؟ ستُنسخ إجاباتك تلقائياً في الرسالة.');
+      if (ok) {
+        const txt = 'طلب توظيف - Toka Market\n\n' + (window.__lastApplication || '');
+        location.href = 'https://wa.me/' + OWNER_WA + '?text=' + encodeURIComponent(txt);
+      }
     }
   }
 });
