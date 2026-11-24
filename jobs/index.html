@@ -477,12 +477,18 @@ document.getElementById('app-form').addEventListener('submit', async function(e)
       document.getElementById('success-screen').style.display = 'block';
       window.scrollTo({top:0, behavior:'smooth'});
     } else {
-      throw new Error('server error');
+      const msg = (out && out.message) ? String(out.message) : ('HTTP ' + res.status);
+      throw new Error(msg);
     }
   } catch(err) {
     btn.disabled = false;
     btn.innerHTML = 'إرسال الاستمارة ✉️';
-    alert('حدث خطأ أثناء الإرسال. تأكد من الاتصال وحاول مجدداً.');
+    const m = String(err && err.message || '');
+    if (/activat/i.test(m)) {
+      alert('الاستمارة بانتظار التفعيل من صاحب الموقع. يرجى المحاولة لاحقاً.');
+    } else {
+      alert('حدث خطأ أثناء الإرسال. تأكد من الاتصال وحاول مجدداً.\n(' + m + ')');
+    }
   }
 });
 </script>
