@@ -460,19 +460,19 @@ document.getElementById('app-form').addEventListener('submit', async function(e)
   data['المنصات'] = platforms.join(', ') || 'لم يتم الاختيار';
   data['الادوات'] = tools.join(', ') || 'لم يتم الاختيار';
 
-  data['_subject'] = 'طلب توظيف جديد - Toka Market - ' + (data['الاسم_الكامل'] || '');
-  data['_template'] = 'table';
-  data['_captcha'] = 'false';
+  data['access_key'] = '61585651-7bf1-4d1a-afed-b94a187b9a98';
+  data['subject'] = 'طلب توظيف جديد - Toka Market - ' + (data['الاسم_الكامل'] || '');
+  data['from_name'] = 'Toka Market Jobs';
 
   try {
-    const res = await fetch('https://formsubmit.co/ajax/fdeb5fe5bef4148be31bf12b5282a91b', {
+    const res = await fetch('https://api.web3forms.com/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify(data)
     });
     const out = await res.json().catch(() => ({}));
 
-    if (res.ok && String(out.success) !== 'false') {
+    if (res.ok && out.success === true) {
       document.getElementById('form-view').style.display = 'none';
       document.getElementById('success-screen').style.display = 'block';
       window.scrollTo({top:0, behavior:'smooth'});
